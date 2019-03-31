@@ -1,0 +1,69 @@
+package com.travel.driveassistant.managers;
+
+import android.content.Context;
+import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.widget.Toast;
+
+import com.travel.driveassistant.util.DateUtil;
+import com.travel.driveassistant.util.Logger;
+
+import java.util.Locale;
+
+public class TTSManager {
+    private Logger logger = new Logger(TTSManager.class.getSimpleName());
+    private TextToSpeech textToSpeech;
+    private long lastSpeechTimeStamp = -1;
+
+    public TTSManager(@NonNull final Context applicationContext) {
+        textToSpeech = new TextToSpeech(applicationContext, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    final int ttsLang = textToSpeech.setLanguage(Locale.US);
+                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
+                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        logger.debug("TextToSpeech, the Language is not supported!");
+                    }
+                    logger.debug("TextToSpeech initialized successfully.");
+                } else {
+                    logger.debug("TextToSpeech initialization failed.");
+                    Toast.makeText(applicationContext, "TextToSpeech Initialization failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void speak(@NonNull String speech) {
+        // Validate speech
+        if (textToSpeech == null || TextUtils.isEmpty(speech)) {
+            return;
+        }
+        // There should be a 15 seconds difference between speeches
+        if (lastSpeechTimeStamp > 0 && DateUtil.underNSecs(lastSpeechTimeStamp, 15)) {
+            return;
+        }
+        // Speak
+        int speechStatus = textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
+
+        if (speechStatus == TextToSpeech.ERROR) {
+            logger.debug("Error in converting Text to Speech!");
+        } else {
+            lastSpeechTimeStamp = System.currentTimeMillis();
+        }
+    }
+
+    public void onDestroy() {
+        if (textToSpeech != null) {
+            try {
+                textToSpeech.stop();
+                textToSpeech.shutdown();
+            } catch (Exception e) {
+                logger.debug("Error in stopping and shutting down Text to Speech!");
+            }
+        }
+        textToSpeech = null;
+        logger = null;
+    }
+}
