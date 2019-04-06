@@ -9,10 +9,23 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 public class MapUtil {
     // method definition
-    public static BitmapDescriptor getMarkerIcon(String color) {
+    public static BitmapDescriptor getMarkerIcon(@NonNull String color) {
         float[] hsv = new float[3];
         Color.colorToHSV(Color.parseColor(color), hsv);
         return BitmapDescriptorFactory.defaultMarker(hsv[0]);
+    }
+
+    public static String getColorForSpeed(float speed) {
+        if (speed < 50) {
+            return "#fbffc1";
+        }
+        if (speed < 60) {
+            return "#e4ffc1";
+        }
+        if (speed < 70 ) {
+            return "#ffd0c1";
+        }
+        return "#f79883";
     }
 
     /**

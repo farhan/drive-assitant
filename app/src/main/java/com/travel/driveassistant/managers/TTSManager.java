@@ -6,8 +6,8 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.travel.driveassistant.utils.DateUtil;
-import com.travel.driveassistant.utils.Logger;
+import com.travel.driveassistant.lib_utils.DateUtil;
+import com.travel.driveassistant.lib_utils.Logger;
 
 import java.util.Locale;
 

@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 
 import com.travel.driveassistant.R;
+import com.travel.driveassistant.managers.DataInputManager;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        DataInputManager.startTakingUserActivityUpdates(getApplicationContext());
     }
 
     @Override

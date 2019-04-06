@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.travel.driveassistant.BuildConfig;
 import com.travel.driveassistant.events.PermissionGrantedEvent;
+import com.travel.driveassistant.lib_utils.PopUpUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -116,12 +117,12 @@ public class PermissionUtil {
 
     }
 
-    public static boolean checkWritePermissionGranted(@NonNull Context context) {
-        int permissionState = ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
+//    public static boolean checkWritePermissionGranted(@NonNull Context context) {
+//        int permissionState = ActivityCompat.checkSelfPermission(context,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        return permissionState == PackageManager.PERMISSION_GRANTED;
+//    }
+//
 //    public static void requestWritePermissionIfRequired(@NonNull Activity activity) {
 //        if (!checkWritePermissionGranted(activity)) {
 //            requestWritePermission(activity);

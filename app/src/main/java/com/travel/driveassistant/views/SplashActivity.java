@@ -14,6 +14,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SplashActivity extends AppCompatActivity {
+    private boolean isNextActivityStarted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,7 +25,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 startApp();
             }
-        }, 1000);
+        }, 2000);
         EventBus.getDefault().register(this);
     }
 
@@ -44,8 +46,13 @@ public class SplashActivity extends AppCompatActivity {
     public void startNextActivity() {
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
+                if (!isNextActivityStarted) {
+                    isNextActivityStarted = true;
+                    final Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                }
             }
         }, 1000);
     }

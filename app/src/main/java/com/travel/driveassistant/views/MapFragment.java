@@ -17,11 +17,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.travel.driveassistant.R;
 import com.travel.driveassistant.databinding.FragmentMapBinding;
+import com.travel.driveassistant.lib_utils.FileLogger;
+import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.managers.DataInputManager;
 import com.travel.driveassistant.managers.TTSManager;
 import com.travel.driveassistant.tracker.events.LocationUpdateEvent;
-import com.travel.driveassistant.utils.FileLogger;
-import com.travel.driveassistant.utils.Logger;
+import com.travel.driveassistant.tracker.logic.MonitorOverSpeed;
 import com.travel.driveassistant.utils.MapUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -86,11 +87,16 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         final float speed = MapUtil.getNormalizedSpeed(lastUserLocation);
         googleMap.addMarker(new MarkerOptions()
                 .position(userLocation).title(Math.round(speed)+" kmph")
-                .icon(MapUtil.getMarkerIcon("#ff0000")));
+                .icon(MapUtil.getMarkerIcon(MapUtil.getColorForSpeed(speed))));
 
         //Move the camera to the user's location and zoom in!
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16.0f));
-        if (speed > 70) {
+
+        final int speedLimit = MonitorOverSpeed.getSpeedLimitOfLocation(location);
+        if (speed > speedLimit) {
+            ttsManager.speak("You are doing over speed. Speed limit it "+speedLimit+". Your speed is "+speed+".");
+        }
+        else if (speed > 75) {
             ttsManager.speak("Your speed is "+Math.round(speed));
         }
     }
