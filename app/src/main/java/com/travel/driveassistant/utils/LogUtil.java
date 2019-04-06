@@ -1,4 +1,4 @@
-package com.travel.driveassistant.util;
+package com.travel.driveassistant.utils;
 
 import android.util.Log;
 

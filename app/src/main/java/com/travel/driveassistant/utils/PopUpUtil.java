@@ -1,9 +1,11 @@
-package com.travel.driveassistant.util;
+package com.travel.driveassistant.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
@@ -43,5 +45,30 @@ public class PopUpUtil {
                 activity.getString(mainTextStringId),
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(activity.getString(actionStringId), listener).show();
+    }
+
+    public static void showSnackbar(@NonNull Activity activity,
+                                    final String mainTextString, final String actionString,
+                                    View.OnClickListener listener) {
+        Snackbar.make(activity.findViewById(android.R.id.content),
+                mainTextString,
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction(actionString, listener).show();
+    }
+
+    /**
+     * Show alert dialog with simple ok and cancel button
+     *
+     * @param context
+     * @param message
+     * @param okListener
+     */
+    public static void showAlertDialog(@NonNull Context context, String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(context)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 }

@@ -1,4 +1,4 @@
-package com.travel.driveassistant.util;
+package com.travel.driveassistant.utils;
 
 import android.graphics.Color;
 import android.location.Location;
@@ -20,8 +20,8 @@ public class MapUtil {
      * @param location
      * @return normalized speed in KPH
      */
-    public static int getNormalizedSpeed(@NonNull Location location) {
-        return Math.round(location.getSpeed() * AppConstants.MPS_TO_KPH + 3);
+    public static float getNormalizedSpeed(@NonNull Location location) {
+        return location.getSpeed() * AppConstants.MPS_TO_KPH + 3;
     }
 
     /**

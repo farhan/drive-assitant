@@ -1,4 +1,4 @@
-package com.travel.driveassistant.view;
+package com.travel.driveassistant.views;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -11,9 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
-import com.travel.driveassistant.BuildConfig;
 import com.travel.driveassistant.R;
-import com.travel.driveassistant.util.PermissionUtil;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,9 +32,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if(BuildConfig.DEBUG) {
-            PermissionUtil.requestWriteAndLocationPermissions(this);
-        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -96,6 +91,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
 }

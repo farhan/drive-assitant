@@ -1,4 +1,4 @@
-package com.travel.driveassistant.util;
+package com.travel.driveassistant.utils;
 
 public class DateUtil {
     public static boolean underNSecs(long oldTimeStamp, int seconds) {

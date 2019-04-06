@@ -1,4 +1,4 @@
-package com.travel.driveassistant.util;
+package com.travel.driveassistant.utils;
 
 import android.content.Context;
 import android.location.Location;
@@ -15,7 +15,7 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.travel.driveassistant.util.FileLogger.LOG_TYPE.*;
+import static com.travel.driveassistant.utils.FileLogger.LOG_TYPE.*;
 
 public class FileLogger {
     public enum LOG_TYPE {
@@ -30,7 +30,7 @@ public class FileLogger {
     private static void writeOnFile(@NonNull Context context, String message, LOG_TYPE type) {
         if (context == null ||
                 !BuildConfig.DEBUG ||
-                PermissionUtil.checkWritePermissionGranted(context)) {
+                !PermissionUtil.checkWritePermissionGranted(context)) {
             return;
         }
         try {

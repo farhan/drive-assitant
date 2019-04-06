@@ -1,4 +1,4 @@
-package com.travel.driveassistant.view;
+package com.travel.driveassistant.views;
 
 import android.support.v7.app.AppCompatActivity;
 
