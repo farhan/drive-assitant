@@ -1,12 +1,12 @@
 /**
  * Copyright 2017 Google Inc. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,8 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
+import com.google.android.gms.location.ActivityTransitionEvent;
+import com.google.android.gms.location.ActivityTransitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
@@ -34,16 +36,19 @@ import java.util.ArrayList;
  *  activity updates using
  *  {@link com.google.android.gms.location.ActivityRecognitionApi#requestActivityUpdates}.
  */
-public class DetectedActivitiesIntentService extends IntentService {
-    private static final Logger logger = new Logger(DetectedActivitiesIntentService.class.getSimpleName());
+public class CommonIntentService extends IntentService {
+    private static final Logger logger = new Logger(CommonIntentService.class.getSimpleName());
+
+    public static final String ACTION_ACTIVITY_RECOGNITION_UPDATES = "ACTION_ACTIVITY_RECOGNITION_UPDATES";
+    public static final String ACTION_ACTIVITY_TRANSITION_UPDATES = "ACTION_ACTIVITY_TRANSITION_UPDATES";
 
     /**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
      */
-    public DetectedActivitiesIntentService() {
+    public CommonIntentService() {
         // Use the TAG to name the worker thread.
-        super("DetectedActivitiesIntentService");
+        super("CommonIntentService");
     }
 
     @Override
@@ -59,17 +64,35 @@ public class DetectedActivitiesIntentService extends IntentService {
     @SuppressWarnings("unchecked")
     @Override
     protected void onHandleIntent(Intent intent) {
-        ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+        if (intent == null || intent.getAction() == null)
+            return;
+        final String action = intent.getAction();
+
+        switch (action) {
+            case ACTION_ACTIVITY_RECOGNITION_UPDATES:
+                handleActivityRecognitionUpdates(intent);
+                break;
+            case ACTION_ACTIVITY_TRANSITION_UPDATES:
+                handleActivityTransitionUpdates(intent);
+                break;
+        }
+    }
+
+    public void handleActivityRecognitionUpdates(Intent intent) {
+        if (!ActivityRecognitionResult.hasResult(intent)) {
+            return;
+        }
+        final ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
         // Get the list of the probable activities associated with the current state of the
         // device. Each activity is associated with a confidence level, which is an int between
         // 0 and 100.
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
-        logger.debug("Got user activity update : "+detectedActivities.toString());
+        logger.debug("Got user activity update : " + detectedActivities.toString());
         EventBus.getDefault().post(new UserActivityUpdateEvent(detectedActivities));
 
-        FileLogger.write(getApplicationContext(),detectedActivities);
+        FileLogger.write(getApplicationContext(), detectedActivities);
 
 //        // Log each activity.
 //        Log.i(TAG, "activities detected");
@@ -79,5 +102,20 @@ public class DetectedActivitiesIntentService extends IntentService {
 //                            da.getType()) + " " + da.getConfidence() + "%"
 //            );
 //        }
+    }
+
+    public void handleActivityTransitionUpdates(Intent intent) {
+        if (!ActivityTransitionResult.hasResult(intent)) {
+            return;
+        }
+        final ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
+
+        ArrayList<ActivityTransitionEvent> transitionEvents = (ArrayList) result.getTransitionEvents();
+
+        for (ActivityTransitionEvent event : transitionEvents) {
+            // chronological sequence of events....
+            // TODO: Fire user activity transition changed event
+            FileLogger.write(getApplicationContext(), event);
+        }
     }
 }

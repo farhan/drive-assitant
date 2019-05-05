@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="driveassitant.travel.com.lib_data_util">
+
+    <application>
+        <activity
+            android:name="com.travel.driveassistant.lib_data_util.views.DataUtilActivity"
+            android:label="@string/title_activity_data_util"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+    </application>
+
+</manifest>

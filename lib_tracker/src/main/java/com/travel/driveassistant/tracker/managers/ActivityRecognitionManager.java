@@ -10,7 +10,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.travel.driveassistant.lib_utils.Logger;
-import com.travel.driveassistant.tracker.services.DetectedActivitiesIntentService;
+import com.travel.driveassistant.tracker.services.CommonIntentService;
 
 public class ActivityRecognitionManager {
     private static final Logger logger = new Logger(ActivityRecognitionManager.class.getSimpleName());
@@ -62,10 +62,10 @@ public class ActivityRecognitionManager {
     }
 
     private static PendingIntent getActivityDetectionPendingIntent(Context context) {
-        Intent intent = new Intent(context, DetectedActivitiesIntentService.class);
-
+        Intent intent = new Intent(context, CommonIntentService.class);
+        intent.setAction(CommonIntentService.ACTION_ACTIVITY_RECOGNITION_UPDATES);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // requestActivityUpdates() and removeActivityUpdates().
-        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }

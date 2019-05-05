@@ -1,4 +1,4 @@
-package com.travel.driveassistant.managers;
+package com.travel.driveassistant.lib_utils.managers;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
@@ -13,10 +13,18 @@ import java.util.Locale;
 
 public class TTSManager {
     private Logger logger = new Logger(TTSManager.class.getSimpleName());
+
+    // There should be a delay between speeches
+    private final int SPEECHES_DELAY_IN_SECS = 20;
+
     private TextToSpeech textToSpeech;
     private long lastSpeechTimeStamp = -1;
 
     public TTSManager(@NonNull final Context applicationContext) {
+        init(applicationContext);
+    }
+
+    private void init(@NonNull final Context applicationContext) {
         textToSpeech = new TextToSpeech(applicationContext, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -40,8 +48,7 @@ public class TTSManager {
         if (textToSpeech == null || TextUtils.isEmpty(speech)) {
             return;
         }
-        // There should be a 15 seconds difference between speeches
-        if (lastSpeechTimeStamp > 0 && DateUtil.underNSecs(lastSpeechTimeStamp, 15)) {
+        if (lastSpeechTimeStamp > 0 && DateUtil.underNSecs(lastSpeechTimeStamp, SPEECHES_DELAY_IN_SECS)) {
             return;
         }
         // Speak

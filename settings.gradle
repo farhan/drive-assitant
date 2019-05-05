@@ -1,1 +1,1 @@
-include ':app', ':lib_tracker', ':lib_utils'
+include ':app', ':lib_tracker', ':lib_utils', ':lib_data_util', ':lib_speed_data', 'lib_data_util'

@@ -4,7 +4,7 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 
 public class LocationUpdateEvent {
-    public Location location;
+    final public Location location;
 
     public LocationUpdateEvent(@NonNull Location location) {
         this.location =  location;

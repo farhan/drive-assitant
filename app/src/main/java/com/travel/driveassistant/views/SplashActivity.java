@@ -25,7 +25,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 startApp();
             }
-        }, 2000);
+        }, 3000);
         EventBus.getDefault().register(this);
     }
 

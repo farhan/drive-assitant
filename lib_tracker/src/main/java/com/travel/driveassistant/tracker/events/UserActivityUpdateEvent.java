@@ -7,7 +7,7 @@ import com.google.android.gms.location.DetectedActivity;
 import java.util.ArrayList;
 
 public class UserActivityUpdateEvent {
-    public ArrayList<DetectedActivity> detectedActivities;
+    final public ArrayList<DetectedActivity> detectedActivities;
 
     public UserActivityUpdateEvent(@NonNull ArrayList<DetectedActivity> detectedActivities) {
         this.detectedActivities =  detectedActivities;
