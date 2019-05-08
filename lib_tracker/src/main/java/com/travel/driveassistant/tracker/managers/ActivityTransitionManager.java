@@ -12,6 +12,7 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.tracker.services.CommonIntentService;
 
@@ -21,7 +22,7 @@ import java.util.List;
 public class ActivityTransitionManager {
     private static final Logger logger = new Logger(ActivityTransitionManager.class.getSimpleName());
 
-    public static void startTransitionUpdates(@NonNull Context context) {
+    public static void startTransitionUpdates(@NonNull final Context context) {
         List<ActivityTransition> transitions = new ArrayList<>();
 
         transitions.add(
@@ -67,6 +68,7 @@ public class ActivityTransitionManager {
                     @Override
                     public void onSuccess(Void result) {
                         logger.debug("Activity transition updates enabled successfully.");
+                        FileLogger.writeDetailLog("Activity transition updates enabled successfully.");
                     }
                 }
         );
@@ -76,12 +78,13 @@ public class ActivityTransitionManager {
                     @Override
                     public void onFailure(Exception e) {
                         logger.debug("Failed to enable activity transition updates.");
+                        FileLogger.writeDetailLog("Failed to enable activity transition updates.");
                     }
                 }
         );
     }
 
-    public static void stopTransitionUpdates(Context context) {
+    public static void stopTransitionUpdates(final Context context) {
         final PendingIntent pendingIntent = getActivityTransitionPendingIntent(context);
         final Task<Void> task = ActivityRecognition.getClient(context)
                 .removeActivityTransitionUpdates(pendingIntent);
@@ -90,14 +93,16 @@ public class ActivityTransitionManager {
             @Override
             public void onSuccess(Void result) {
                 pendingIntent.cancel();
-                logger.debug("Activity recognition updates disabled successfully.");
+                logger.debug("Activity transition updates disabled successfully.");
+                FileLogger.writeDetailLog("Activity transition updates disabled successfully.");
             }
         });
 
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                logger.debug("Failed to disable activity recognition updates.");
+                logger.debug("Failed to disable activity transition updates.");
+                FileLogger.writeDetailLog("Failed to disable activity transition updates.");
             }
         });
     }

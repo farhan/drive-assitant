@@ -25,11 +25,13 @@ import com.google.android.gms.location.ActivityTransitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
+import com.travel.driveassistant.tracker.events.ActivityTransitionUpdateEvent;
 import com.travel.driveassistant.tracker.events.UserActivityUpdateEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  IntentService for handling incoming intents that are generated as a result of requesting
@@ -64,11 +66,11 @@ public class CommonIntentService extends IntentService {
     @SuppressWarnings("unchecked")
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent == null || intent.getAction() == null)
+        if (intent == null || intent.getAction() == null) {
             return;
-        final String action = intent.getAction();
+        }
 
-        switch (action) {
+        switch (intent.getAction()) {
             case ACTION_ACTIVITY_RECOGNITION_UPDATES:
                 handleActivityRecognitionUpdates(intent);
                 break;
@@ -92,7 +94,7 @@ public class CommonIntentService extends IntentService {
         logger.debug("Got user activity update : " + detectedActivities.toString());
         EventBus.getDefault().post(new UserActivityUpdateEvent(detectedActivities));
 
-        FileLogger.write(getApplicationContext(), detectedActivities);
+        FileLogger.write(detectedActivities);
 
 //        // Log each activity.
 //        Log.i(TAG, "activities detected");
@@ -110,12 +112,18 @@ public class CommonIntentService extends IntentService {
         }
         final ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
 
-        ArrayList<ActivityTransitionEvent> transitionEvents = (ArrayList) result.getTransitionEvents();
-
+        final List<ActivityTransitionEvent> transitionEvents = result.getTransitionEvents();
         for (ActivityTransitionEvent event : transitionEvents) {
+
+            FileLogger.write(event);
+
             // chronological sequence of events....
-            // TODO: Fire user activity transition changed event
-            FileLogger.write(getApplicationContext(), event);
+            EventBus.getDefault().post(new ActivityTransitionUpdateEvent(event));
+
+//            // write log
+//            String activity = CommonUtils.getActivityTypeName(event.getActivityType());
+//            String transition = String.valueOf(CommonUtils.getTransitionTypeName(event.getTransitionType()));
+//            FileLogger.writeDetailLog("Got Activity transition update: "+activity+"_"+transition);
         }
     }
 }

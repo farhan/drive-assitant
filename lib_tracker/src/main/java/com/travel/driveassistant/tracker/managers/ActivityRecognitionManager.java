@@ -9,6 +9,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.tracker.services.CommonIntentService;
 
@@ -22,7 +23,7 @@ public class ActivityRecognitionManager {
      */
     static final long DETECTION_INTERVAL_IN_MILLISECONDS = 3 * 1000; // 5 seconds
 
-    public static void startActivityUpdates(@NonNull Context context) {
+    public static void startActivityUpdates(@NonNull final Context context) {
         final ActivityRecognitionClient client = new ActivityRecognitionClient(context);
         Task<Void> task = client.requestActivityUpdates(
                 DETECTION_INTERVAL_IN_MILLISECONDS,
@@ -32,6 +33,7 @@ public class ActivityRecognitionManager {
             @Override
             public void onSuccess(Void result) {
                 logger.debug("Activity recognition updates enabled successfully.");
+                FileLogger.writeDetailLog("Activity recognition updates enabled successfully.");
             }
         });
 
@@ -39,17 +41,19 @@ public class ActivityRecognitionManager {
             @Override
             public void onFailure(@NonNull Exception e) {
                 logger.debug("Failed to enable activity recognition updates.");
+                FileLogger.writeDetailLog("Failed to enable activity recognition updates.");
             }
         });
     }
 
-    public static void stopActivityUpdates(Context context) {
+    public static void stopActivityUpdates(final Context context) {
         final ActivityRecognitionClient client = new ActivityRecognitionClient(context);
         final Task<Void> task = client.removeActivityUpdates(getActivityDetectionPendingIntent(context));
         task.addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void result) {
                 logger.debug("Activity recognition updates disabled successfully.");
+                FileLogger.writeDetailLog("Activity recognition updates disabled successfully.");
             }
         });
 
@@ -57,6 +61,7 @@ public class ActivityRecognitionManager {
             @Override
             public void onFailure(@NonNull Exception e) {
                 logger.debug("Failed to disable activity recognition updates.");
+                FileLogger.writeDetailLog("Failed to disable activity recognition updates.");
             }
         });
     }

@@ -68,7 +68,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         EventBus.getDefault().register(this);
-        DataInputManager.startTakingLocationUpdates(getContext().getApplicationContext());
+//        DataInputManager.startTakingLocationUpdates(getContext().getApplicationContext());
+        DataInputManager.stopTakingLocationUpdates(getContext().getApplicationContext());
 
         drawCanalRoad();
 
@@ -206,8 +207,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
 //    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onMessageEvent(OverSpeedEvent event) {
-//        final OverSpeedResult result = event.overSpeedResult;
+//    public void onMessageEvent(OverSpeedEvent transitionEvent) {
+//        final OverSpeedResult result = transitionEvent.overSpeedResult;
 //
 //        ttsManager.speak("Please avoid over speeding");
 //
@@ -263,6 +264,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         super.onDestroy();
 //        ttsManager.onDestroy();
         EventBus.getDefault().unregister(this);
-        DataInputManager.stopTakingLocationUpdates(getContext().getApplicationContext());
+//        DataInputManager.stopTakingLocationUpdates(getContext().getApplicationContext());
     }
 }

@@ -1,6 +1,5 @@
 package com.travel.driveassistant.lib_utils;
 
-import android.content.Context;
 import android.location.Location;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -18,14 +17,19 @@ import java.util.Date;
 
 import driveassitant.travel.com.lib_utils.BuildConfig;
 
-import static com.travel.driveassistant.lib_utils.FileLogger.LOG_TYPE.GENERAL;
 import static com.travel.driveassistant.lib_utils.FileLogger.LOG_TYPE.GPS;
 
 public class FileLogger {
     private static Logger logger = new Logger(FileLogger.class.getName());
 
+    private static final boolean DETAIL_LOGGING = true;
+
     public enum LOG_TYPE {
-        GPS, AR, GENERAL
+        GPS, // Location
+        AR,  // User activity recognition
+        AT, // User activity transition
+        COMMON_LOGS, // Common logs
+        DETAILED_LOGS // Common logs
     }
 
     private static String getFileName(LOG_TYPE type) {
@@ -33,16 +37,17 @@ public class FileLogger {
         return date + "-" + type.name() + "-" + Build.MODEL + ".csv";
     }
 
-    private static void writeOnFile(@NonNull Context context, String message, LOG_TYPE type) {
-        if (context == null ||
-                !BuildConfig.DEBUG ||
-                !PermissionUtil.checkWritePermissionGranted(context)) {
+    private static void writeOnFile(String message, LOG_TYPE type) {
+        if (!BuildConfig.DEBUG) {
             return;
         }
+//        if (context == null || !PermissionUtil.checkWritePermissionGranted(context)) {
+//            return;
+//        }
         try {
             final Date date = new Date();
             message = String.valueOf(date.getTime()) + "," + new SimpleDateFormat("HH:mm:ss").format(date)
-                    + "," + message ;
+                    + "," + message;
 
             final File root = android.os.Environment.getExternalStorageDirectory();
             final File dir = new File(root.getAbsolutePath() + "/DriveAssistant");
@@ -52,16 +57,21 @@ public class FileLogger {
 
             if (!file.exists()) {
                 file.createNewFile();
-                switch(type) {
+                switch (type) {
                     case GPS:
                         message = "TIMESTAMP,TIME,LAT,LONG,SPEED,NORMALIZED_SPEED_IN_KMPH,ACCURACY,BEARING/COURSE \r\n"
+                                + message;
+                        break;
+                    case AT:
+                        message = "TIMESTAMP,TIME,ACTIVITY,TRANSITION,TIME_ELAPSED \r\n"
                                 + message;
                         break;
                     case AR:
                         message = "TIMESTAMP,TIME,IN_VEHICLE,ON_BICYCLE,ON_FOOT,STILL,UNKNOWN,TILTING,GARBAGE,WALKING,RUNNING \r\n"
                                 + message;
                         break;
-                    case GENERAL:
+                    case COMMON_LOGS:
+                    case DETAILED_LOGS:
                         message = "TIMESTAMP,TIME,LOG \r\n"
                                 + message;
                         break;
@@ -78,7 +88,7 @@ public class FileLogger {
             myOutWriter.close();
             fOut.close();
         } catch (IOException e) {
-            logger.debug("Exception occurred in writing log in a file.\n"+e.getMessage());
+            logger.debug("Exception occurred in writing log in a file.\n" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -101,14 +111,22 @@ public class FileLogger {
         return csr.toString();
     }
 
-    public static void write(@NonNull Context context, @NonNull String log) {
+    public static void writeCommonLog(@NonNull String log) {
         if (!BuildConfig.DEBUG) {
             return;
         }
-        writeOnFile(context, log, GENERAL);
+        writeOnFile(log, LOG_TYPE.COMMON_LOGS);
+        writeDetailLog(log);
     }
 
-    public static void write(@NonNull Context context, @NonNull Location location) {
+    public static void writeDetailLog(@NonNull String log) {
+        if (!BuildConfig.DEBUG && !DETAIL_LOGGING) {
+            return;
+        }
+        writeOnFile(log, LOG_TYPE.DETAILED_LOGS);
+    }
+
+    public static void write(@NonNull Location location) {
         if (!BuildConfig.DEBUG) {
             return;
         }
@@ -119,23 +137,24 @@ public class FileLogger {
         arr[3] = String.valueOf(MapUtil.getNormalizedSpeed(location));
         arr[4] = String.valueOf(location.getAccuracy());
         arr[5] = String.valueOf(location.getBearing());
-        writeOnFile(context, getCommaSeparatedRow(arr), GPS);
+        writeOnFile(getCommaSeparatedRow(arr), GPS);
     }
 
-    public static void write(@NonNull Context context, @NonNull ActivityTransitionEvent transitionEvent) {
+    public static void write(@NonNull ActivityTransitionEvent transitionEvent) {
         if (!BuildConfig.DEBUG) {
             return;
         }
 
         String[] arr = new String[3];
-        arr[0] = String.valueOf(transitionEvent.getActivityType());
-        arr[1] = String.valueOf(transitionEvent.getTransitionType());
+        arr[0] = String.valueOf(CommonUtils.getActivityTypeName(transitionEvent.getActivityType()));
+        arr[1] = String.valueOf(CommonUtils.getTransitionTypeName(transitionEvent.getTransitionType()));
         arr[2] = String.valueOf(transitionEvent.getElapsedRealTimeNanos());
 
-        writeOnFile(context, getCommaSeparatedRow(arr), LOG_TYPE.AR);
+        final String log = getCommaSeparatedRow(arr);
+        writeOnFile(log, LOG_TYPE.AT);
     }
 
-    public static void write(@NonNull Context context, @NonNull ArrayList<DetectedActivity> detectedActivities) {
+    public static void write(@NonNull ArrayList<DetectedActivity> detectedActivities) {
         if (!BuildConfig.DEBUG) {
             return;
         }
@@ -145,6 +164,6 @@ public class FileLogger {
             activitiesConfidences[detectedActivity.getType()] = detectedActivity.getConfidence();
         }
 
-        writeOnFile(context, getCommaSeparatedRow(activitiesConfidences), LOG_TYPE.AR);
+        writeOnFile(getCommaSeparatedRow(activitiesConfidences), LOG_TYPE.AR);
     }
 }

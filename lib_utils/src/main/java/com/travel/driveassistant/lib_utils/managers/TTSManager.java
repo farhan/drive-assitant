@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.travel.driveassistant.lib_utils.DateUtil;
+import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 
 import java.util.Locale;
@@ -35,6 +36,8 @@ public class TTSManager {
                         logger.debug("TextToSpeech, the Language is not supported!");
                     }
                     logger.debug("TextToSpeech initialized successfully.");
+                    textToSpeech.setPitch(0.8f);
+                    textToSpeech.setSpeechRate(0.7f);
                 } else {
                     logger.debug("TextToSpeech initialization failed.");
                     Toast.makeText(applicationContext, "TextToSpeech Initialization failed!", Toast.LENGTH_SHORT).show();
@@ -44,20 +47,25 @@ public class TTSManager {
     }
 
     public void speak(@NonNull String speech) {
-        // Validate speech
-        if (textToSpeech == null || TextUtils.isEmpty(speech)) {
-            return;
-        }
-        if (lastSpeechTimeStamp > 0 && DateUtil.underNSecs(lastSpeechTimeStamp, SPEECHES_DELAY_IN_SECS)) {
-            return;
-        }
-        // Speak
-        int speechStatus = textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
+        try {
+            // Validate speech
+            if (textToSpeech == null || TextUtils.isEmpty(speech)) {
+                return;
+            }
+            if (lastSpeechTimeStamp > 0 && DateUtil.underNSecs(lastSpeechTimeStamp, SPEECHES_DELAY_IN_SECS)) {
+                return;
+            }
+            // Speak
+            int speechStatus = textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
+            FileLogger.writeCommonLog("TTS_SPEECH: "+speech);
 
-        if (speechStatus == TextToSpeech.ERROR) {
-            logger.debug("Error in converting Text to Speech!");
-        } else {
-            lastSpeechTimeStamp = System.currentTimeMillis();
+            if (speechStatus == TextToSpeech.ERROR) {
+                logger.debug("Error in converting Text to Speech!");
+            } else {
+                lastSpeechTimeStamp = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            
         }
     }
 

@@ -28,11 +28,9 @@ public class LocationManager {
     private LocationCallback locationCallback;
 
     private Context context;
-    private BusinessLogicManager businessLogicManager;
 
-    public LocationManager(@NonNull Context applicationContext, @NonNull BusinessLogicManager businessLogicManager) {
+    public LocationManager(@NonNull Context applicationContext) {
         this.context = applicationContext;
-        this.businessLogicManager = businessLogicManager;
     }
 
     private LocationRequest getLocationRequest() {
@@ -51,7 +49,7 @@ public class LocationManager {
                 public void onLocationResult(LocationResult locationResult) {
                     final Location location = locationResult.getLastLocation();
                     if (location != null) {
-                        FileLogger.write(context, location);
+                        FileLogger.write(location);
                         logger.debug("Got Location Update : "+location.toString());
                         EventBus.getDefault().post(new LocationUpdateEvent(location));
                     }
@@ -74,6 +72,7 @@ public class LocationManager {
                 getLocationCallback(),
                 null /* Looper */);
         logger.debug("startLocationUpdates");
+        FileLogger.writeCommonLog("LocationManager.startLocationUpdates");
     }
 
     public void stopLocationUpdates() {
@@ -82,5 +81,6 @@ public class LocationManager {
             fusedLocationClient = null;
         }
         logger.debug("stopLocationUpdates");
+        FileLogger.writeCommonLog("LocationManager.stopLocationUpdates");
     }
 }

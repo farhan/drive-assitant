@@ -11,12 +11,14 @@ import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
+import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.lib_utils.ServiceUtil;
 import com.travel.driveassistant.tracker.events.LocationRequestEvent;
-import com.travel.driveassistant.tracker.managers.LocationManager;
 import com.travel.driveassistant.tracker.managers.ActivityRecognitionManager;
+import com.travel.driveassistant.tracker.managers.ActivityTransitionManager;
 import com.travel.driveassistant.tracker.managers.BusinessLogicManager;
+import com.travel.driveassistant.tracker.managers.LocationManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -53,7 +55,6 @@ public class BackgroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        logger.debug("BackgroundService.onCreate");
 
         isServiceRunning = true;
 
@@ -62,7 +63,7 @@ public class BackgroundService extends Service {
         ServiceUtil.startServiceAsForeground(this);
 
         businessLogicManager = new BusinessLogicManager(getApplicationContext());
-        locationManager = new LocationManager(getApplicationContext(), businessLogicManager);
+        locationManager = new LocationManager(getApplicationContext());
 
         phoneStateListener = new PhoneStateListener() {
             @Override
@@ -82,6 +83,7 @@ public class BackgroundService extends Service {
                 if (isCellLocationChanged(cellLocation)) {
                     lastCellLocationId = cellLocation.toString();
                     logger.debug("User cell location changed to " + lastCellLocationId);
+                    ActivityTransitionManager.startTransitionUpdates(getApplicationContext());
                     ActivityRecognitionManager.startActivityUpdates(getApplicationContext());
                 }
 
@@ -94,6 +96,9 @@ public class BackgroundService extends Service {
                 }, CELL_LOCATION_DELAY_MILLIS);
             }
         };
+
+        logger.debug("BackgroundService.onCreate");
+        FileLogger.writeCommonLog("BackgroundService.onCreate");
     }
 
     private boolean isCellLocationChanged(@NonNull CellLocation cellLocation) {
@@ -106,6 +111,7 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         logger.debug("BackgroundService.onStartCommand");
+        FileLogger.writeDetailLog("BackgroundService.onStartCommand");
 
         telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CELL_LOCATION);
@@ -117,11 +123,13 @@ public class BackgroundService extends Service {
     public void onLowMemory() {
         super.onLowMemory();
         logger.debug("BackgroundService.onLowMemory");
+        FileLogger.writeDetailLog("BackgroundService.onLowMemory");
     }
 
     @Override
     public void onTrimMemory(int level) {
         if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
+            FileLogger.writeDetailLog("BackgroundService.onTrimMemory, level=TRIM_MEMORY_RUNNING_CRITICAL");
             logger.debug("BackgroundService.onTrimMemory, level=TRIM_MEMORY_RUNNING_CRITICAL");
         }
     }
@@ -132,7 +140,12 @@ public class BackgroundService extends Service {
             return;
         }
         if (event.isStartRequesting) {
-            locationManager.startLocationUpdates(getApplicationContext());
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    locationManager.startLocationUpdates(BackgroundService.this);
+                }
+            }, 10000);
         } else {
             locationManager.stopLocationUpdates();
         }
@@ -141,7 +154,6 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        logger.debug("BackgroundService.onDestroy");
 
         isServiceRunning = false;
 
@@ -166,5 +178,8 @@ public class BackgroundService extends Service {
         }
 
         ServiceUtil.stopServiceAsForeground(this);
+
+        logger.debug("BackgroundService.onDestroy");
+        FileLogger.writeCommonLog("BackgroundService.onDestroy");
     }
 }
