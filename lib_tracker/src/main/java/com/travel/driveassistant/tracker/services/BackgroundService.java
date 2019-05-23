@@ -15,10 +15,9 @@ import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.lib_utils.ServiceUtil;
 import com.travel.driveassistant.tracker.events.LocationRequestEvent;
-import com.travel.driveassistant.tracker.managers.ActivityRecognitionManager;
-import com.travel.driveassistant.tracker.managers.ActivityTransitionManager;
 import com.travel.driveassistant.tracker.managers.BusinessLogicManager;
 import com.travel.driveassistant.tracker.managers.LocationManager;
+import com.travel.driveassistant.tracker.utils.TrackerUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -83,8 +82,7 @@ public class BackgroundService extends Service {
                 if (isCellLocationChanged(cellLocation)) {
                     lastCellLocationId = cellLocation.toString();
                     logger.debug("User cell location changed to " + lastCellLocationId);
-                    ActivityTransitionManager.startTransitionUpdates(getApplicationContext());
-                    ActivityRecognitionManager.startActivityUpdates(getApplicationContext());
+                    TrackerUtils.startTakingUserActivityUpdates(getApplicationContext());
                 }
 
                 handler.postDelayed(new Runnable() {
@@ -140,12 +138,7 @@ public class BackgroundService extends Service {
             return;
         }
         if (event.isStartRequesting) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    locationManager.startLocationUpdates(BackgroundService.this);
-                }
-            }, 10000);
+            locationManager.startLocationUpdates(BackgroundService.this);
         } else {
             locationManager.stopLocationUpdates();
         }

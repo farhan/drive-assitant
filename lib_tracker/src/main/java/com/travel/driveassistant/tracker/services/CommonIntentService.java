@@ -41,6 +41,7 @@ import java.util.List;
 public class CommonIntentService extends IntentService {
     private static final Logger logger = new Logger(CommonIntentService.class.getSimpleName());
 
+    public static final String ACTION_LOCATION_UPDATES = "ACTION_LOCATION_UPDATES";
     public static final String ACTION_ACTIVITY_RECOGNITION_UPDATES = "ACTION_ACTIVITY_RECOGNITION_UPDATES";
     public static final String ACTION_ACTIVITY_TRANSITION_UPDATES = "ACTION_ACTIVITY_TRANSITION_UPDATES";
 
@@ -71,6 +72,9 @@ public class CommonIntentService extends IntentService {
         }
 
         switch (intent.getAction()) {
+//            case ACTION_LOCATION_UPDATES:
+//                handleLocationUpdates(intent);
+//                break;
             case ACTION_ACTIVITY_RECOGNITION_UPDATES:
                 handleActivityRecognitionUpdates(intent);
                 break;
@@ -79,6 +83,16 @@ public class CommonIntentService extends IntentService {
                 break;
         }
     }
+
+//    public void handleLocationUpdates(Intent intent) {
+//        if (!ActivityRecognitionResult.hasResult(intent)) {
+//            return;
+//        }
+//        final LocationResult result = LocationResult.extractResult(intent);
+//        if (result != null) {
+//            LocationManager.onLocationUpdate(result);
+//        }
+//    }
 
     public void handleActivityRecognitionUpdates(Intent intent) {
         if (!ActivityRecognitionResult.hasResult(intent)) {

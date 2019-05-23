@@ -16,8 +16,9 @@ public class OverSpeedUtil {
 
     public static OverSpeedResult checkCanalRoadSpeedViolation(final LatLng userLocation, final float userSpeed,
                                                                final @NonNull OverSpeedResult result) {
+        final int CANAL_ROAD_SPEED_LIMIT = 70 + Constants.OVER_SPEED_MARGIN;
         // Speed is less than speed limit on this road
-        if (userSpeed <= 65) {
+        if (userSpeed <= CANAL_ROAD_SPEED_LIMIT) {
             return result;
         }
         boolean isLocationOnPath = PolyUtil.isLocationOnPath(userLocation, getCanalRoadPolyLine(), false, 90);

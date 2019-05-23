@@ -112,6 +112,6 @@ public class ActivityTransitionManager {
         intent.setAction(CommonIntentService.ACTION_ACTIVITY_TRANSITION_UPDATES);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // requestActivityUpdates() and removeActivityUpdates().
-        return PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }

@@ -22,7 +22,6 @@ import com.travel.driveassistant.lib_speed_data.OverSpeedResult;
 import com.travel.driveassistant.lib_speed_data.OverSpeedUtil;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.lib_utils.MapUtil;
-import com.travel.driveassistant.managers.DataInputManager;
 import com.travel.driveassistant.tracker.events.LocationUpdateOverSpeedEvent;
 import com.travel.driveassistant.tracker.utils.TrackerUtils;
 
@@ -69,7 +68,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         this.googleMap = googleMap;
         EventBus.getDefault().register(this);
 //        DataInputManager.startTakingLocationUpdates(getContext().getApplicationContext());
-        DataInputManager.stopTakingLocationUpdates(getContext().getApplicationContext());
 
         drawCanalRoad();
 

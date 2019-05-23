@@ -150,8 +150,7 @@ public class FileLogger {
         arr[1] = String.valueOf(CommonUtils.getTransitionTypeName(transitionEvent.getTransitionType()));
         arr[2] = String.valueOf(transitionEvent.getElapsedRealTimeNanos());
 
-        final String log = getCommaSeparatedRow(arr);
-        writeOnFile(log, LOG_TYPE.AT);
+        writeOnFile(getCommaSeparatedRow(arr), LOG_TYPE.AT);
     }
 
     public static void write(@NonNull ArrayList<DetectedActivity> detectedActivities) {

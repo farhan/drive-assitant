@@ -36,8 +36,8 @@ public class TTSManager {
                         logger.debug("TextToSpeech, the Language is not supported!");
                     }
                     logger.debug("TextToSpeech initialized successfully.");
-                    textToSpeech.setPitch(0.8f);
-                    textToSpeech.setSpeechRate(0.7f);
+                    textToSpeech.setPitch(0.9f);
+                    textToSpeech.setSpeechRate(0.85f);
                 } else {
                     logger.debug("TextToSpeech initialization failed.");
                     Toast.makeText(applicationContext, "TextToSpeech Initialization failed!", Toast.LENGTH_SHORT).show();

@@ -1,13 +1,21 @@
 package com.travel.driveassistant.lib_utils;
 
 import com.google.android.gms.location.ActivityTransition;
+import com.google.android.gms.location.ActivityTransitionEvent;
 import com.google.android.gms.location.DetectedActivity;
 
 public class CommonUtils {
+    public static boolean isUserStateChanged(ActivityTransitionEvent lastTransitionEvent,
+                                             ActivityTransitionEvent newTransitionEvent) {
+        return lastTransitionEvent == null ||
+                lastTransitionEvent.getActivityType() != newTransitionEvent.getActivityType() ||
+                lastTransitionEvent.getTransitionType() != newTransitionEvent.getTransitionType();
+    }
 
-    public static boolean isUserStateChanged(int lastActivityType, int lastTransitionType,
-                                      int newActivityType, int newTransitionType) {
-        return lastActivityType != newActivityType || lastTransitionType != newTransitionType;
+    public static boolean isLastStateWasVehicleEnter(ActivityTransitionEvent lastTransitionEvent) {
+        return lastTransitionEvent != null &&
+                lastTransitionEvent.getActivityType() == DetectedActivity.IN_VEHICLE &&
+                lastTransitionEvent.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER;
     }
 
     public static String getTransitionTypeName(int transitionType) {

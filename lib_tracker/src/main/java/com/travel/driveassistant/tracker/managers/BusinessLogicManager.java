@@ -25,8 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class BusinessLogicManager {
-    private int userActivityType = -1;
-    private int userTransitionType = -1;
+    private ActivityTransitionEvent userLastTransitionEvent = null;
     private Context context;
     private TTSManager ttsManager;
     private Location lastUserLocation = null;
@@ -46,28 +45,22 @@ public class BusinessLogicManager {
     @Subscribe
     public void onMessageEvent(ActivityTransitionUpdateEvent event) {
         final ActivityTransitionEvent transitionEvent = event.transitionEvent;
+        if (!CommonUtils.isUserStateChanged(userLastTransitionEvent, transitionEvent)) {
+            return;
+        }
         switch (transitionEvent.getActivityType()) {
             case DetectedActivity.IN_VEHICLE:
                 switch (transitionEvent.getTransitionType()) {
                     case ActivityTransition.ACTIVITY_TRANSITION_ENTER:
-                        if (CommonUtils.isUserStateChanged(userActivityType, userTransitionType,
-                                DetectedActivity.IN_VEHICLE, ActivityTransition.ACTIVITY_TRANSITION_ENTER)) {
-                            userActivityType = DetectedActivity.IN_VEHICLE;
-                            userTransitionType = ActivityTransition.ACTIVITY_TRANSITION_ENTER;
-                            onStartDriving();
-                        }
+                        onStartDriving();
                         break;
                     case ActivityTransition.ACTIVITY_TRANSITION_EXIT:
-                        if (CommonUtils.isUserStateChanged(userActivityType, userTransitionType,
-                                DetectedActivity.IN_VEHICLE, ActivityTransition.ACTIVITY_TRANSITION_EXIT)) {
-                            userActivityType = DetectedActivity.IN_VEHICLE;
-                            userTransitionType = ActivityTransition.ACTIVITY_TRANSITION_EXIT;
-                            onEndDriving();
-                        }
+                        onEndDriving();
                         break;
                 }
                 break;
         }
+        userLastTransitionEvent = transitionEvent;
     }
 
     public void onStartDriving() {
@@ -77,9 +70,13 @@ public class BusinessLogicManager {
     }
 
     public void onEndDriving() {
-        FileLogger.writeCommonLog("END_DRIVING");
-        ttsManager.speak("Nice drive, champ!");
         EventBus.getDefault().post(new LocationRequestEvent(false));
+        if (CommonUtils.isLastStateWasVehicleEnter(userLastTransitionEvent)) {
+            FileLogger.writeCommonLog("END_DRIVING");
+            ttsManager.speak("Nice drive champ!");
+        } else {
+            FileLogger.writeCommonLog("END_DRIVING but last event was not IN_VEHICLE_ENTER");
+        }
     }
 
     @Subscribe
@@ -96,12 +93,13 @@ public class BusinessLogicManager {
             // Monitor over userSpeed
             result = OverSpeedUtil.checkOverSpeed(userLatLng, userSpeed);
             if (result.isOverSpeed) {
+                FileLogger.writeCommonLog("OVER_SPEED DETECTED!!!, speed: " + result.userSpeedNormalized);
+                ttsManager.speak("Please avoid over speeding");
+
                 // Fire over speeding transitionEvent
                 EventBus.getDefault().post(new OverSpeedEvent(userLocation, result));
-                ttsManager.speak("Please avoid over speeding");
-                //TODO: Disable taking locations for some time
 
-                FileLogger.writeCommonLog("OVER_SPEED DETECTED!!!, speed: "+result.userSpeedNormalized);
+                //TODO: Disable taking locations for some time
             }
         }
         EventBus.getDefault().post(new LocationUpdateOverSpeedEvent(userLocation, result));

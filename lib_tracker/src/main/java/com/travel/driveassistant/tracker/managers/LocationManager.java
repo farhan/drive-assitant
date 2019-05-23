@@ -1,7 +1,9 @@
 package com.travel.driveassistant.tracker.managers;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.support.annotation.NonNull;
 
@@ -13,11 +15,12 @@ import com.google.android.gms.location.LocationServices;
 import com.travel.driveassistant.lib_utils.FileLogger;
 import com.travel.driveassistant.lib_utils.Logger;
 import com.travel.driveassistant.tracker.events.LocationUpdateEvent;
+import com.travel.driveassistant.tracker.services.CommonIntentService;
 
 import org.greenrobot.eventbus.EventBus;
 
 public class LocationManager {
-    private Logger logger = new Logger(getClass().getSimpleName());
+    private static Logger logger = new Logger(LocationManager.class.getSimpleName());
 
     private final long GPS_TIME_INTERVAL = 1000 * 2;
     private final long GPS_FASTEST_TIME_INTERVAL = 1000;
@@ -47,12 +50,7 @@ public class LocationManager {
         if (locationCallback == null) {
             locationCallback = new LocationCallback() {
                 public void onLocationResult(LocationResult locationResult) {
-                    final Location location = locationResult.getLastLocation();
-                    if (location != null) {
-                        FileLogger.write(location);
-                        logger.debug("Got Location Update : "+location.toString());
-                        EventBus.getDefault().post(new LocationUpdateEvent(location));
-                    }
+                    onLocationUpdate(locationResult);
                 }
             };
         }
@@ -68,9 +66,14 @@ public class LocationManager {
 
     @SuppressLint("MissingPermission")
     public void startLocationUpdates(@NonNull Context applicationContext) {
+
         getFusedLocationClient(applicationContext).requestLocationUpdates(getLocationRequest(),
                 getLocationCallback(),
-                null /* Looper */);
+                applicationContext.getMainLooper());
+
+//        getFusedLocationClient(applicationContext).requestLocationUpdates(getLocationRequest(),
+//                getPendingIntent(applicationContext));
+
         logger.debug("startLocationUpdates");
         FileLogger.writeCommonLog("LocationManager.startLocationUpdates");
     }
@@ -82,5 +85,20 @@ public class LocationManager {
         }
         logger.debug("stopLocationUpdates");
         FileLogger.writeCommonLog("LocationManager.stopLocationUpdates");
+    }
+
+    private PendingIntent getPendingIntent(@NonNull Context applicationContext) {
+        Intent intent = new Intent(applicationContext, CommonIntentService.class);
+        intent.setAction(CommonIntentService.ACTION_LOCATION_UPDATES);
+        return PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static void onLocationUpdate(LocationResult locationResult) {
+        final Location location = locationResult.getLastLocation();
+        if (location != null) {
+            FileLogger.write(location);
+            logger.debug("Got Location Update : "+location.toString());
+            EventBus.getDefault().post(new LocationUpdateEvent(location));
+        }
     }
 }
