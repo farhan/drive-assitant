@@ -46,7 +46,7 @@ public class FileLogger {
 //        }
         try {
             final Date date = new Date();
-            message = String.valueOf(date.getTime()) + "," + new SimpleDateFormat("HH:mm:ss").format(date)
+            message = String.valueOf(System.currentTimeMillis()) + "," + new SimpleDateFormat("HH:mm:ss").format(date)
                     + "," + message;
 
             final File root = android.os.Environment.getExternalStorageDirectory();
@@ -63,7 +63,7 @@ public class FileLogger {
                                 + message;
                         break;
                     case AT:
-                        message = "TIMESTAMP,TIME,ACTIVITY,TRANSITION,TIME_ELAPSED \r\n"
+                        message = "TIMESTAMP,TIME,ACTIVITY,TRANSITION,TIME_ELAPSED(Nanos),TIME_ELAPSED(Millis),TIME_ELAPSED(timestamp)  \r\n"
                                 + message;
                         break;
                     case AR:
@@ -145,10 +145,15 @@ public class FileLogger {
             return;
         }
 
-        String[] arr = new String[3];
+        long elapsedTimeInMillis = transitionEvent.getElapsedRealTimeNanos()/1000000;
+        final Date elapsedTimeDate = new Date(elapsedTimeInMillis);
+
+        String[] arr = new String[5];
         arr[0] = String.valueOf(CommonUtils.getActivityTypeName(transitionEvent.getActivityType()));
         arr[1] = String.valueOf(CommonUtils.getTransitionTypeName(transitionEvent.getTransitionType()));
         arr[2] = String.valueOf(transitionEvent.getElapsedRealTimeNanos());
+        arr[3] = String.valueOf(elapsedTimeInMillis);
+        arr[4] = String.valueOf(new SimpleDateFormat("HH:mm:ss.SSS").format(elapsedTimeDate));
 
         writeOnFile(getCommaSeparatedRow(arr), LOG_TYPE.AT);
     }

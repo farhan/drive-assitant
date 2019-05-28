@@ -14,8 +14,7 @@ import android.view.WindowManager;
 
 import com.travel.driveassistant.R;
 import com.travel.driveassistant.lib_data_util.views.DataUtilActivity;
-import com.travel.driveassistant.managers.DataInputManager;
-import com.travel.driveassistant.tracker.services.BackgroundService;
+import com.travel.driveassistant.tracker.Tracker;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -37,10 +36,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        //Start tracker
-        DataInputManager.startTakingUserActivityUpdates(getApplicationContext());
-        BackgroundService.start(getApplicationContext(), null);
+        Tracker.startTracker(getApplicationContext());
     }
 
     @Override

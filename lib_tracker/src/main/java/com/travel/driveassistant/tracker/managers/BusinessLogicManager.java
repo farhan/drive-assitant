@@ -25,10 +25,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class BusinessLogicManager {
-    private ActivityTransitionEvent userLastTransitionEvent = null;
     private Context context;
     private TTSManager ttsManager;
     private Location lastUserLocation = null;
+    private ActivityTransitionEvent userLastTransitionEvent = null;
+    private ActivityTransitionEvent userLastInVehicleEnter = null;
+    private ActivityTransitionEvent userLastInVehicleExit = null;
 
     public BusinessLogicManager(@NonNull Context applicationContext) {
         context = applicationContext;
@@ -52,10 +54,16 @@ public class BusinessLogicManager {
             case DetectedActivity.IN_VEHICLE:
                 switch (transitionEvent.getTransitionType()) {
                     case ActivityTransition.ACTIVITY_TRANSITION_ENTER:
-                        onStartDriving();
+                        if (CommonUtils.isEventNotRepeated(userLastInVehicleEnter, transitionEvent)) {
+                            userLastInVehicleEnter = transitionEvent;
+                            onStartDriving();
+                        }
                         break;
                     case ActivityTransition.ACTIVITY_TRANSITION_EXIT:
-                        onEndDriving();
+                        if (CommonUtils.isEventNotRepeated(userLastInVehicleExit, transitionEvent)) {
+                            userLastInVehicleExit = transitionEvent;
+                            onEndDriving();
+                        }
                         break;
                 }
                 break;
@@ -73,7 +81,7 @@ public class BusinessLogicManager {
         EventBus.getDefault().post(new LocationRequestEvent(false));
         if (CommonUtils.isLastStateWasVehicleEnter(userLastTransitionEvent)) {
             FileLogger.writeCommonLog("END_DRIVING");
-            ttsManager.speak("Nice drive champ!");
+            ttsManager.speak("Nice drive!");
         } else {
             FileLogger.writeCommonLog("END_DRIVING but last event was not IN_VEHICLE_ENTER");
         }
